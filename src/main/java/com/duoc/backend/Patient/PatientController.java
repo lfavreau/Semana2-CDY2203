@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+//importo dependecias faltantes
+import org.springframework.web.util.HtmlUtils;
+
+
 import java.util.List;
 
 
@@ -22,7 +26,8 @@ public class PatientController {
 
     @GetMapping("/register")
     public String greetings(@RequestParam(value="name", defaultValue="World") String name) {
-        return "Hello {" + name + "}";
+        String safe = HtmlUtils.htmlEscape(name);
+        return "Hello {" + safe + "}";
     }
 
     @GetMapping

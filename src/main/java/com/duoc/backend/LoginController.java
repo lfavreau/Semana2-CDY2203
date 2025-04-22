@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+//agrego dependencias faltantes
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.util.HtmlUtils;
+
 
 @RestController
 public class LoginController {
@@ -19,21 +23,23 @@ public class LoginController {
     @Autowired
     private MyUserDetailsService userDetailsService;
 
-    @PostMapping("login")
+    // agrego autowire passencoder
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @PostMapping("/login")
     public String login(@RequestBody User loginRequest) {
+        // cargar usuario
+        final UserDetails userDetails =
+            userDetailsService.loadUserByUsername(loginRequest.getUsername());
 
-        /**
-        * En el ejemplo no se realiza la correcta validación del usuario
-        */
-
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
-
-        if (!userDetails.getPassword().equals(loginRequest.getPassword())) {
+        // comparar con BCrypt no equals plano
+        if (!passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword())) {
             throw new RuntimeException("Invalid login");
         }
 
-        String token = jwtAuthtenticationConfig.getJWTToken(loginRequest.getUsername());
-        return token;
+        // sin carácteres extraños
+        String safeUsername = HtmlUtils.htmlEscape(userDetails.getUsername());
+        return jwtAuthtenticationConfig.getJWTToken(safeUsername);
     }
-
 }
