@@ -11,7 +11,9 @@ import org.springframework.web.util.HtmlUtils;
 public class SecuredController {
 
     @RequestMapping("greetings")
-    public String greetings(@RequestParam(value="name", defaultValue="World") String name) {
-        return "Hello {" + name + "}";
+    public String greetings(@RequestParam(value = "name", defaultValue = "World") String name) {
+        // escapa cualquier carácter para prevenir XSS
+        String safeName = HtmlUtils.htmlEscape(name);
+        return "Hello {" + safeName + "}";
     }
 }
